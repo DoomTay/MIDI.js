@@ -20,7 +20,9 @@
 		///
 		midi.audioBuffers = audioBuffers;
 		midi.send = function(data, delay) { };
-		midi.setController = function(channelId, type, value, delay) { };
+		midi.setController = function(channelId, type, value, delay) {
+			if (type == 10) root.setBalance(channelId,value,delay);
+		};
 
 		midi.setVolume = function(channelId, volume, delay) {
 			if (delay) {
@@ -91,14 +93,19 @@
 				}
 			}
 
+			/// add balance
+			var panNode = ctx.createStereoPanner();
+			panNode.pan.value = (channel.balance / 127) * 2 - 1;
+						
 			/// add gain + pitchShift
-			var gain = (velocity / 127) * (masterVolume / 127) * 2 - 1;
-			source.connect(ctx.destination);
+			var gain = (velocity / 127) * (masterVolume / 127);
+			//source.connect(ctx.destination);
 			source.playbackRate.value = 1; // pitch shift 
 			source.gainNode = ctx.createGain(); // gain
 			source.gainNode.connect(ctx.destination);
-			source.gainNode.gain.value = Math.min(1.0, Math.max(-1.0, gain));
-			source.connect(source.gainNode);
+			source.gainNode.gain.value = Math.min(1.0, Math.max(0.0, gain));
+			source.connect(panNode);
+			panNode.connect(source.gainNode);
 			///
 			if (useStreamingBuffer) {
 				if (delay) {
@@ -140,7 +147,7 @@
 						// add { 'metadata': { release: 0.3 } } to soundfont files
 						var gain = source.gainNode.gain;
 						gain.linearRampToValueAtTime(gain.value, delay);
-						gain.linearRampToValueAtTime(-1.0, delay + 0.3);
+						gain.linearRampToValueAtTime(0.0, delay + 0.3);
 					}
 					///
 					if (useStreamingBuffer) {

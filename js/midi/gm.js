@@ -123,6 +123,26 @@
 			channel.solo = truthy;
 		}
 	};
+	
+	/* get/setBalance
+	--------------------------------------------------- */
+	root.getBalance = function(channelId) {
+		var channel = root.channels[channelId];
+		return channel && channel.balance;
+	};
+
+	root.setBalance = function(channelId, truthy, delay) {
+		var channel = root.channels[channelId];
+		/*if (delay) {
+			return setTimeout(function() {
+				channel.balance = truthy;	
+			}, delay);
+		} else {
+			channel.balance = truthy;
+		}*/
+		
+		channel.balance = truthy;
+	};
 
 	/* channels
 	--------------------------------------------------- */
@@ -132,6 +152,7 @@
 			channels[i] = { // default values
 				instrument: i,
 				pitchBend: 0,
+				balance: 64,
 				mute: false,
 				mono: false,
 				omni: false,
